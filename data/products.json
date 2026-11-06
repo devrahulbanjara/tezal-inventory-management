@@ -1,0 +1,38 @@
+[
+  {
+    "id": 1,
+    "code": "R-001",
+    "name": "Ring 1 (Silver Floral)",
+    "cost_price": 350.0,
+    "selling_price": 650.0,
+    "stock": 15,
+    "created_at": "2026-11-05 16:30:00"
+  },
+  {
+    "id": 2,
+    "code": "R-002",
+    "name": "Ring 2 (Gold Minimalist)",
+    "cost_price": 400.0,
+    "selling_price": 750.0,
+    "stock": 12,
+    "created_at": "2026-11-05 16:30:00"
+  },
+  {
+    "id": 3,
+    "code": "N-001",
+    "name": "Butterfly Pendant Necklace",
+    "cost_price": 550.0,
+    "selling_price": 1100.0,
+    "stock": 7,
+    "created_at": "2026-11-05 16:30:00"
+  },
+  {
+    "id": 4,
+    "code": "E-001",
+    "name": "Pearl Drop Earrings",
+    "cost_price": 250.0,
+    "selling_price": 500.0,
+    "stock": 20,
+    "created_at": "2026-11-05 16:30:00"
+  }
+]

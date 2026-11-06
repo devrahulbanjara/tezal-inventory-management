@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Inventory & Billing System{% endblock %} - Tezal</title>
+  <link rel="preconnect" href="https://unpkg.com">
+  <link rel="stylesheet" href="https://unpkg.com/lucide-static@0.468.0/font/lucide.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="/" class="nav-brand">
+        <span class="brand-mark"><img src="/static/brand/tezal.png" alt="Tezal" /></span>
+        <span>Tezal's workspace</span>
+      </a>
+
+      <ul class="nav-links">
+        <li>
+          <a href="/" class="nav-link {% if active_page == 'dashboard' %}active{% endif %}">
+            <i class="icon icon-layout-dashboard" aria-hidden="true"></i><span>Overview</span>
+          </a>
+        </li>
+        <li>
+          <a href="/inventory" class="nav-link {% if active_page == 'inventory' %}active{% endif %}">
+            <i class="icon icon-package" aria-hidden="true"></i><span>Inventory</span>
+          </a>
+        </li>
+        <li>
+          <a href="/orders" class="nav-link {% if active_page == 'orders' %}active{% endif %}">
+            <i class="icon icon-shopping-bag" aria-hidden="true"></i><span>Orders & sales</span>
+          </a>
+        </li>
+        <li>
+          <a href="/orders/new" class="btn btn-primary btn-sm btn-new-order-nav">
+            <i class="icon icon-plus" aria-hidden="true"></i><span>New order</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Flash Messages via Query Params -->
+  <div class="main-content">
+    {% set msg = request.query_params.get('msg') if request else None %}
+    {% set cat = request.query_params.get('cat', 'info') if request else 'info' %}
+    {% if msg %}
+      <div class="flash-container">
+        <div class="alert alert-{{ cat }}">
+          <span>{{ msg }}</span>
+          <button onclick="this.parentElement.remove()" style="background:none; border:none; cursor:pointer; font-size:1.1rem; line-height:1; color:inherit;">&times;</button>
+        </div>
+      </div>
+    {% endif %}
+
+    {% block content %}{% endblock %}
+  </div>
+
+  <script src="/static/js/order.js"></script>
+  <script src="/static/js/validation.js"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

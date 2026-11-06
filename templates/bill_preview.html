@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% block title %}Invoice {{ order.invoice_no }}{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+  <div>
+    <div style="display: flex; align-items: center; gap: 0.5rem;">
+      <img class="store-avatar" src="{% if 'Wardrobe' in order.store_name %}/static/brand/mero-wardrobe-nepal.jpg{% else %}/static/brand/mero-choice-nepal.jpg{% endif %}" alt="{{ order.store_name }} logo">
+      <span class="badge badge-success" style="font-size: 0.85rem;">✓ Order Saved & Bill Generated</span>
+      <span class="badge {% if 'Wardrobe' in order.store_name %}badge-store-wardrobe{% else %}badge-store-choice{% endif %}">
+        {{ order.store_name }}
+      </span>
+      <span class="badge channel-badge">{% if order.channel|default('Other', true) == 'Instagram' %}<i class="fa-brands fa-instagram" aria-hidden="true"></i>{% elif order.channel|default('Other', true) == 'WhatsApp' %}<i class="fa-brands fa-whatsapp" aria-hidden="true"></i>{% else %}<i class="fa-solid fa-ellipsis" aria-hidden="true"></i>{% endif %} {{ order.channel|default('Other', true) }}</span>
+    </div>
+    <h1 style="font-size: 1.6rem; font-weight: 800; margin-top: 0.35rem;">
+      {{ order.invoice_no }}
+    </h1>
+    <p style="color: var(--text-muted); font-size: 0.9rem;">
+      Customer: <strong>{{ order.customer_name }}</strong> • {{ order.customer_address }}
+    </p>
+  </div>
+
+  <div style="display: flex; gap: 0.6rem; flex-wrap: wrap;">
+    <a href="/{{ order.bill_image_path }}?download=1" class="btn btn-primary">
+      <i class="icon icon-download" aria-hidden="true"></i> Download bill
+    </a>
+    <a href="/{{ order.bill_image_path }}" target="_blank" class="btn btn-outline">
+      <i class="icon icon-external-link" aria-hidden="true"></i> Open bill
+    </a>
+    <a href="/orders/new" class="btn btn-outline">
+      <i class="icon icon-plus" aria-hidden="true"></i> New order
+    </a>
+    <a href="/orders" class="btn btn-outline">
+      <i class="icon icon-arrow-left" aria-hidden="true"></i> Orders & sales
+    </a>
+  </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 1.5rem; align-items: start;">
+  
+  <!-- Left Column: Bill Image Preview -->
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title"><i class="icon icon-file-image" aria-hidden="true"></i> Bill preview</h2>
+      <span style="font-size: 0.8rem; color: var(--text-muted);">Ready to send to the customer</span>
+    </div>
+
+    <div class="bill-preview-box">
+      <img src="/{{ order.bill_image_path }}" 
+           alt="Invoice {{ order.invoice_no }}" 
+           class="bill-image"
+           id="generatedBillImg">
+    </div>
+
+    <div style="margin-top: 1rem; text-align: center;">
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem;">
+        Saved on computer at:<br>
+        <code style="background: #F1F5F9; padding: 3px 8px; border-radius: 4px; font-weight: 600;">{{ order.bill_image_path }}</code>
+      </p>
+    </div>
+  </div>
+
+  <!-- Right Column: Internal Order Breakdown & Info -->
+  <div>
+    <!-- Profit & Financial Breakdown Card -->
+    <div class="card" style="border-left: 4px solid var(--success);">
+      <div class="card-header">
+        <h2 class="card-title"><i class="icon icon-piggy-bank" aria-hidden="true"></i> Internal breakdown</h2>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem;">
+        <div style="background: #F8FAFC; padding: 0.85rem; border-radius: 8px; border: 1px solid var(--border);">
+          <div style="font-size: 0.78rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Bill Total (Selling)</div>
+          <div style="font-size: 1.3rem; font-weight: 800; color: var(--text-main);">Rs. {{ "{:,.0f}".format(order.total_selling) }}</div>
+        </div>
+
+        <div style="background: #F8FAFC; padding: 0.85rem; border-radius: 8px; border: 1px solid var(--border);">
+          <div style="font-size: 0.78rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Cost to Tezal</div>
+          <div style="font-size: 1.3rem; font-weight: 800; color: var(--text-muted);">Rs. {{ "{:,.0f}".format(order.total_cost) }}</div>
+        </div>
+      </div>
+
+      <div class="order-total-breakdown">
+        <div><span>Products</span><strong>Rs. {{ "{:,.0f}".format(order.total_selling) }}</strong></div>
+        <div><span>Delivery charge</span><strong>Rs. {{ "{:,.0f}".format(order.delivery_charge|default(0, true)) }}</strong></div>
+        <div class="grand-total"><span>Customer total</span><strong>Rs. {{ "{:,.0f}".format(order.grand_total|default(order.total_selling, true)) }}</strong></div>
+      </div>
+
+      <div style="background: #DCFCE7; border: 1px solid #BBF7D0; border-radius: 8px; padding: 1rem; text-align: center;">
+        <div style="font-size: 0.82rem; text-transform: uppercase; color: #166534; font-weight: 700;">Net Profit Made on this Order</div>
+        <div style="font-size: 1.8rem; font-weight: 900; color: #15803D;">+Rs. {{ "{:,.0f}".format(order.total_profit) }}</div>
+      </div>
+    </div>
+
+    <!-- Order Info Card -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title"><i class="icon icon-info" aria-hidden="true"></i> Order details</h2>
+      </div>
+
+      <div style="font-size: 0.9rem; line-height: 1.8;">
+        <p><strong>Store:</strong> {{ order.store_name }}</p>
+        <p><strong>Channel:</strong> {{ order.channel|default('Other', true) }}</p>
+        <p><strong>Customer:</strong> {{ order.customer_name }}</p>
+        <p><strong>Address:</strong> {{ order.customer_address }}</p>
+        {% if order.customer_phone %}
+        <p><strong>Contact:</strong> {{ order.customer_phone }}</p>
+        {% endif %}
+        <p><strong>Payment Method:</strong> {{ order.payment_method }}</p>
+        <p><strong>Created At:</strong> {{ order.created_at }}</p>
+        {% if order.notes %}
+        <p><strong>Notes:</strong> {{ order.notes }}</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Items in this order -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title"><i class="icon icon-package" aria-hidden="true"></i> Items</h2>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th>Qty</th>
+              <th>Price</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in order['items'] %}
+            <tr>
+              <td>
+                <strong style="color: var(--primary);">{{ item.product_code }}</strong><br>
+                <small style="color: var(--text-muted);">{{ item.product_name }}</small>
+              </td>
+              <td>{{ item.quantity }}</td>
+              <td>Rs. {{ "{:,.0f}".format(item.selling_price) }}</td>
+              <td><strong>Rs. {{ "{:,.0f}".format(item.subtotal) }}</strong></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}

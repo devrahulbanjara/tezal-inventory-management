@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Overview{% endblock %}
+{% block content %}
+<header class="page-header">
+  <div><div class="eyebrow">Business overview</div><h1 class="page-title">Your business at a glance.</h1><p class="page-subtitle">A simple view of this month’s sales, profit, and what needs your attention.</p></div>
+  <div class="page-actions"><a href="/inventory" class="btn btn-outline"><i class="icon icon-package" aria-hidden="true"></i> View inventory</a><a href="/orders/new" class="btn btn-primary"><i class="icon icon-plus" aria-hidden="true"></i> New order</a></div>
+</header>
+<section class="metric-grid" aria-label="This month's business summary">
+  <div class="metric-card accent"><div class="metric-label">This month’s revenue</div><div class="metric-value">Rs. {{ "{:,.0f}".format(stats.month_revenue) }}</div></div>
+  <div class="metric-card"><div class="metric-label">This month’s profit</div><div class="metric-value" style="color:var(--success)">Rs. {{ "{:,.0f}".format(stats.month_profit) }}</div></div>
+  <div class="metric-card"><div class="metric-label">Orders this month</div><div class="metric-value">{{ stats.month_orders }}</div></div>
+  <div class="metric-card"><div class="metric-label">Needs attention</div><div class="metric-value" style="color:{% if stats.low_stock_count + stats.out_of_stock_count %}var(--warning){% else %}var(--success){% endif %}">{{ stats.low_stock_count + stats.out_of_stock_count }}</div></div>
+</section>
+<div class="dashboard-grid">
+  <div class="dashboard-stack">
+    <section class="card"><div class="section-heading"><div><h2>Recent orders</h2><p class="muted" style="font-size:.8rem">Your latest sales across both shops.</p></div><a href="/orders" class="btn btn-outline btn-sm">View all</a></div>
+      {% if recent_orders %}<div class="table-responsive"><table class="table"><thead><tr><th>Order</th><th>Customer</th><th>Channel</th><th>Total</th><th>Profit</th></tr></thead><tbody>
+        {% for order in recent_orders %}<tr><td><a href="/orders/{{ order.id }}" style="font-weight:800;color:var(--primary);text-decoration:none">{{ order.invoice_no }}</a><br><small class="muted">{{ order.created_at[:16] }}</small></td><td><strong>{{ order.customer_name }}</strong><br><small class="muted">{{ order.store_name }}</small></td><td><span class="badge channel-badge">{% if order.channel|default('Other', true) == 'Instagram' %}<i class="fa-brands fa-instagram" aria-hidden="true"></i>{% elif order.channel|default('Other', true) == 'WhatsApp' %}<i class="fa-brands fa-whatsapp" aria-hidden="true"></i>{% else %}<i class="fa-solid fa-ellipsis" aria-hidden="true"></i>{% endif %} {{ order.channel|default('Other', true) }}</span></td><td><strong>Rs. {{ "{:,.0f}".format(order.total_selling) }}</strong></td><td><span class="badge-profit">+Rs. {{ "{:,.0f}".format(order.total_profit) }}</span></td></tr>{% endfor %}
+      </tbody></table></div>{% else %}<div class="empty-state"><strong>No orders yet</strong><span>Your first sale can start here.</span><br><a class="btn btn-primary btn-sm" href="/orders/new" style="margin-top:.9rem">Create an order</a></div>{% endif %}
+    </section>
+    <section class="card"><div class="section-heading"><div><h2>Store performance</h2><p class="muted" style="font-size:.8rem">Revenue and profit by shop.</p></div></div>
+      {% if stats.store_breakdown %}{% set max_store_revenue = stats.store_breakdown | map(attribute=2) | max %}<div class="mix-list">{% for store, count, revenue, profit in stats.store_breakdown %}<div class="mix-row"><div class="mix-meta"><strong>{{ store }}</strong><span class="muted">{{ count }} orders · Rs. {{ "{:,.0f}".format(profit) }} profit</span></div><div class="mix-track"><div class="mix-fill" style="width:{% if max_store_revenue %}{{ (revenue / max_store_revenue * 100)|round(0) }}{% else %}0{% endif %}%"></div></div></div>{% endfor %}</div>{% else %}<div class="empty-state">Sales by shop will appear after your first order.</div>{% endif %}
+    </section>
+  </div>
+  <div class="dashboard-stack">
+    <section class="card"><div class="section-heading"><div><h2>Sales channels</h2><p class="muted" style="font-size:.8rem">Where customers are ordering from.</p></div></div>
+      {% if stats.channel_breakdown %}{% set max_channel_count = stats.channel_breakdown | map(attribute=1) | max %}<div class="mix-list">{% for channel, count in stats.channel_breakdown %}<div class="mix-row"><div class="mix-meta"><strong>{{ channel }}</strong><span class="muted">{{ count }} orders</span></div><div class="mix-track"><div class="mix-fill" style="width:{% if max_channel_count %}{{ (count / max_channel_count * 100)|round(0) }}{% else %}0{% endif %}%"></div></div></div>{% endfor %}</div>{% else %}<div class="empty-state">Channel performance will appear after your first order.</div>{% endif %}
+    </section>
+    <section class="card" style="border-color:{% if low_stock_products %}#f2d39b{% else %}var(--border){% endif %}"><div class="section-heading"><div><h2>Inventory attention</h2><p class="muted" style="font-size:.8rem">{{ stats.low_stock_count }} low stock · {{ stats.out_of_stock_count }} out of stock</p></div><a href="/inventory" class="btn btn-outline btn-sm">Manage</a></div>
+      {% if low_stock_products %}<div class="mix-list">{% for product in low_stock_products[:5] %}<div class="mix-meta"><span><strong>{{ product.code }}</strong> {{ product.name }}</span><span class="badge {% if product.stock == 0 %}badge-danger{% else %}badge-warning{% endif %}">{{ product.stock }} left</span></div>{% endfor %}</div>{% else %}<div class="empty-state" style="padding:1rem 0">Everything is stocked well.</div>{% endif %}
+    </section>
+  </div>
+</div>
+{% endblock %}
